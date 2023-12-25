@@ -1,0 +1,108 @@
+1:
+Display the employee who got the maximum salary.
+------------------------------------------------
+
+MariaDB [company]> SELECT ename, MAX(salary) from emp;
++-------+-------------+
+| ename | MAX(salary) |
++-------+-------------+
+| Smith |        6500 |
++-------+-------------+
+1 row in set (0.001 sec)
+
+===========================================================
+
+2. Display the employees who are working in Sales department.
+-------------------------------------------------------------
+
+MariaDB [company]> select ename from emp where job='Salesman' ;
++--------+
+| ename  |
++--------+
+| Allen  |
+| Ward   |
+| Martin |
+| Turner |
++--------+
+4 rows in set (0.001 sec)
+
+===============================================================
+
+3. Display the employees who are working in “New York”.
+-------------------------------------------------------
+
+MariaDB [company]> select ename from emp where deptno = (select deptno from dept where location='New York');
++--------+
+| ename  |
++--------+
+| Clark  |
+| King   |
+| Miller |
++--------+
+3 rows in set (0.001 sec)
+
+
+
+===============================================================
+
+4. Find out no. of employees working in “Sales” department.
+----------------------------------------------------------
+
+MariaDB [company]> select count(*) Total_Employees from emp where job='Salesman'
+    -> ;
++-----------------+
+| Total_Employees |
++-----------------+
+|               4 |
++-----------------+
+1 row in set (0.001 sec)
+
+==================================================================
+
+5. List out the employees who earn more than every employee in department 30.
+-----------------------------------------------------------------------------
+
+MariaDB [company]> select ename from emp where salary=(select MAX(salary) from emp where deptno=30);
++-------+
+| ename |
++-------+
+| Blake |
++-------+
+1 row in set (0.001 sec)
+
+====================================================================
+
+6. List out the employees who earn more than the lowest salary in department 30.
+--------------------------------------------------------------------------------
+
+MariaDB [company]> select ename from emp where salary>(select MIN(salary) from emp where deptno=30);
++--------+
+| ename  |
++--------+
+| Allen  |
+| Ward   |
+| Jones  |
+| Martin |
+| Blake  |
+| Clark  |
+| Scott  |
+| David  |
+| King   |
+| Turner |
+| Adams  |
+| Ford   |
+| Miller |
++--------+
+13 rows in set (0.001 sec)
+
+=================================================================
+
+
+
+
+
+
+
+
+
+

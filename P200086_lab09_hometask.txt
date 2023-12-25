@@ -1,0 +1,220 @@
+# -------------------------TABLE CREATION--------------------------
+#Users TABLE
+
+MariaDB [person]> CREATE TABLE USERS( 
+    USER_ID INT, 
+    USERNAME VARCHAR(50), 
+    PASSWORD VARCHAR(50),
+    EMAIL VARCHAR(50), 
+    SALARY INT, 
+    PRIMARY KEY (USER_ID)
+);
+
+# =================================================================================
+#Summary table
+
+MariaDB [person]> CREATE TABLE SUMMARY( 
+    ID INT, 
+    TOTAL_USERS INT, 
+    YAHOO INT,
+    HOTMAIL INT, 
+    GMAIL INT, 
+    PRIMARY KEY (ID)
+);
+
+# ===================================================================================
+#       TASK1
+
+CREATE PROCEDURE SUMMARY_INSERTION(IN ID int,IN TOTAL_USERS int,IN YAHOO int,IN HOTMAIL int,IN GMAIL int)
+    BEGIN
+    INSERT INTO SUMMARY VALUES(ID, TOTAL_USERS, YAHOO, HOTMAIL, GMAIL);
+    END$$
+    
+    MariaDB [person]> SELECT * FROM SUMMARY;
+    +----+-------------+-------+---------+-------+
+    | ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
+    +----+-------------+-------+---------+-------+
+    |  1 |           2 |     1 |       0 |     1 |
+    +----+-------------+-------+---------+-------+
+    1 row in set (0.001 sec)
+    
+    
+# =====================================================================================
+#            TASK2
+CREATE PROCEDURE USERS_INSERTION(
+    IN USER_ID int,USERNAME VARCHAR(50),PASSWORD VARCHAR(50),EMAIL VARCHAR(50), SALARY int)
+    BEGIN
+    INSERT INTO USERS VALUES(USER_ID, USERNAME, PASSWORD, EMAIL, SALARY);
+    END$
+
+        MariaDB [person]> SELECT * FROM USERS;
+    +---------+----------+----------+------------------+--------+
+    | USER_ID | USERNAME | PASSWORD | EMAIL            | SALARY |
+    +---------+----------+----------+------------------+--------+
+    |       1 | SUBHAN   | SU123    | SUBHAN@GMAIL.COM |   3000 |
+    |       2 | XYZ      | XYZ678   | XYZ@GMAIL.COM    |   5000 |
+    +---------+----------+----------+------------------+--------+
+    2 rows in set (0.001 sec)
+
+# =====================================================================================
+
+#           TASK3
+
+MariaDB [person]> CREATE PROCEDURE USER_RECORDS_COUNT()
+    BEGIN SELECT COUNT(USER_ID) AS TOTAL_RECORD FROM USERS; 
+    END$
+Query OK, 0 rows affected (0.008 sec)
+
+    MariaDB [person]> CALL USER_RECORDS_COUNT();
+        -> $
+    +--------------+
+    | TOTAL_RECORD |
+    +--------------+
+    |            2 |
+    +--------------+
+    1 row in set (0.001 sec)
+
+    Query OK, 0 rows affected (0.001 sec)
+
+# =====================================================================================
+
+#           TASK4
+MariaDB [person]> CREATE PROCEDURE USER_AVG_SALARY(OUT AVG_SALARY INT) 
+    BEGIN SELECT AVG(SALARY) INTO AVG_SALARY FROM USERS; 
+    END$
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [person]> CALL USER_AVG_SALARY(@USER_AVG_SALARY)$
+Query OK, 1 row affected (0.001 sec)
+
+MariaDB [person]> SELECT @USER_AVG_SALARY;
+        -> $
+    +------------------+
+    | @USER_AVG_SALARY |
+    +------------------+
+    |             4000 |
+    +------------------+
+    1 row in set (0.000 sec)
+
+# =====================================================================================
+#           TASK5
+
+MariaDB [person]> CREATE PROCEDURE SALARY  (OUT MIN_SALARY  int,OUT MAX_SALARY  int)
+    -> BEGIN
+    -> SELECT MIN(SALARY ) AS MINIMUM_SALARY ,MAX(SALARY ) AS MAXIMUM_SALARY INTO MIN_SALARY , MAX_SALARY  FROM USERS;
+    -> END$$
+Query OK, 0 rows affected (0.008 sec)
+
+MariaDB [person]> CALL SALARY(MIN_SALARY,MAX_SALARY)$
+Query OK, 1 row affected (0.001 sec)
+
+MariaDB [person]> SELECT @MIN_SALARY,@MAX_SALARY$
+    +-------------+-------------+
+    | @MIN_SALARY | @MAX_SALARY |
+    +-------------+-------------+
+    |        3000 |        5000 |
+    +-------------+-------------+
+    1 row in set (0.000 sec)
+# =====================================================================================
+
+#       Task06
+
+# ==================================  A  =================================================
+
+MariaDB [person]> CREATE TRIGGER USER_AFTER_INSERT AFTER INSERT ON person.USERS
+    -> FOR EACH ROW BEGIN
+    -> UPDATE SUMMARY SET TOTAL_USERS = TOTAL_USERS +1 WHERE ID =1;
+    -> END$$
+Query OK, 0 rows affected (0.007 sec)
+
+#Before
+
+
+MariaDB [person]> SELECT * FROM SUMMARY$
++----+-------------+-------+---------+-------+
+| ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
++----+-------------+-------+---------+-------+
+|  1 |           2 |     1 |       0 |     1 |
++----+-------------+-------+---------+-------+
+1 row in set (0.001 sec)
+
+        # -------------------------------
+
+MariaDB [person]> INSERT INTO USERS VALUES(4,'AMMAR','ABC123','XYZ1@GMAIL.COM',9000)$
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> INSERT INTO USERS VALUES(5,'ANSAR','ABC123','XYZ2@GMAIL.COM',8000)$
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> INSERT INTO USERS VALUES(6,'AFFZAL','ABC123','XYZ3@GMAIL.COM',4000)$
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> INSERT INTO USERS VALUES(7,'AHMAD','ABC123','XYZ4@GMAIL.COM',2000)$
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> INSERT INTO USERS VALUES(8,'KAMRAN','ABC123','XYZ5@GMAIL.COM',5000)$
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> INSERT INTO USERS VALUES(9,'MAIN','ABC123','XYZ6@GMAIL.COM',2000)$
+Query OK, 1 row affected (0.004 sec)
+
+        #After insertion
+
+MariaDB [person]> SELECT * FROM SUMMARY;
++----+-------------+-------+---------+-------+
+| ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
++----+-------------+-------+---------+-------+
+|  1 |           7 |     1 |       0 |     1 |
++----+-------------+-------+---------+-------+
+
+
+# ======================================= B ===============================
+
+MariaDB [person]> CREATE TRIGGER USER_BEFORE_DELETE BEFORE DELETE ON person.USERS
+    -> FOR EACH ROW BEGIN UPDATE SUMMARY SET TOTAL_USERS = TOTAL_USERS -1 WHERE ID =1;
+    -> END$$
+Query OK, 0 rows affected (0.008 sec)
+
+ERROR: No query specified
+# ----------------------------------------
+
+MariaDB [person]> DELETE FROM USERS WHERE USER_ID=5;
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> SELECT * FROM SUMMARY;
++----+-------------+-------+---------+-------+
+| ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
++----+-------------+-------+---------+-------+
+|  1 |           6 |     1 |       0 |     1 |
++----+-------------+-------+---------+-------+
+1 row in set (0.001 sec)
+
+MariaDB [person]> DELETE FROM USERS WHERE USER_ID=6;
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> SELECT * FROM SUMMARY;
++----+-------------+-------+---------+-------+
+| ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
++----+-------------+-------+---------+-------+
+|  1 |           5 |     1 |       0 |     1 |
++----+-------------+-------+---------+-------+
+1 row in set (0.000 sec)
+
+MariaDB [person]> DELETE FROM USERS WHERE USER_ID=7;
+Query OK, 1 row affected (0.004 sec)
+
+MariaDB [person]> SELECT * FROM SUMMARY;
++----+-------------+-------+---------+-------+
+| ID | TOTAL_USERS | YAHOO | HOTMAIL | GMAIL |
++----+-------------+-------+---------+-------+
+|  1 |           4 |     1 |       0 |     1 |
++----+-------------+-------+---------+-------+
+1 row in set (0.001 sec)
+
+
+
+
+
+
+
+    
